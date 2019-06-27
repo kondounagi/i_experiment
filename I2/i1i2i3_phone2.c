@@ -15,42 +15,61 @@
 #include <pthread.h>
 #define BUF 4096
 
-void make_socket(char* ip, int port){
-    
+int build_server_socket(char port[]){
+    int ss = socket(PF_INET, SOCK_STREAM, 0);
+
+    struct sockaddr_in addr;
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(atoi(port));
+    addr.sin_addr.s_addr = INADDR_ANY;
+
+    bind(ss, (struct sockaddr *)&addr, sizeof(addr));
+
+    listen(ss, 10);
+
+    struct sockaddr_in client_addr;
+    socklen_t len = sizeof(struct sockaddr_in);
+
+    int s = accept(ss, (struct sockaddr *)&client_addr, &len);
+
+    if (s < 0) {
+        fprintf(stderr, "connection failed!!\n");
+        exit(0);
+    }
+    close(ss);
+    return s;
+}
+
+
+int build_client_socket(char ip[], char port[]) {
+    int s = socket(PF_INET, SOCK_STREAM, 0);
+
+    struct sockaddr_in addr;
+    addr.sin_family = AF_INET;
+    addr.sin_addr.s_addr = inet_addr(ip);
+    addr.sin_port = htons(atoi(port));
+
+    int ret = connect(s, (struct sockaddr *)&addr, sizeof(addr));
+    if (ret != 0) {
+        fprintf(stderr, "connection failed !!!\n");
+    }
+    return s;
 }
 
 int main(int argc, char* argv[]){
     // build socket
     int s;
     if (argc == 2) {
-        int ss = socket(PF_INET, SOCK_STREAM, 0);
-        struct sockaddr_in addr;
-        addr.sin_family = AF_INET;
-        addr.sin_port = htons(atoi(argv[1]));
-        addr.sin_addr.s_addr = INADDR_ANY;
-        bind(ss, (struct sockaddr *)&addr, sizeof(addr));
-        listen(ss, 10);
-        struct sockaddr_in client_addr;
-        socklen_t len = sizeof(struct sockaddr_in);
-        s = accept(ss, (struct sockaddr *)&client_addr, &len);
-        if (s < 0) {
-            fprintf(stderr, "connection failed!!\n");
-            exit(0);
-        }
-        close(ss);
+        char port[] = argv[1];
+        s = build_server_socket(port);
     } else if (argc == 3) {
-        s = socket(PF_INET, SOCK_STREAM, 0);
-        struct sockaddr_in addr;
-        addr.sin_family = AF_INET;
-        addr.sin_addr.s_addr = inet_addr(argv[1]);
-        addr.sin_port = htons(atoi(argv[2]));
-        int ret = connect(s, (struct sockaddr *)&addr, sizeof(addr));
-        if (ret != 0) {
-            fprintf(stderr, "connection failed !!!\n");
-        }
+        char ip[] = argv[1];
+        char port[] = argv[2];
+        s = build_client_socket(ip, port);
     } else {
         fprintf(stderr, "please check args\n");
     }
+    fprintf(stderr
 
     char send_data[BUF];
     char recieved_data[BUF];

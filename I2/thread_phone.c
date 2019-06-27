@@ -14,13 +14,13 @@
 #include <pthread.h>
 #define BUF 4096
 
-void send_from_stdin(int* s) {
+void* send_from_stdin(int* s) {
     int n;
     char send_data[BUF];
     while (true) {
         n = read(0, send_data, sizeof(send_data));
         if (n > 0) {
-            int snd = send(s, send_data, sizeof(send_data), 0);
+            int snd = send(*s, send_data, sizeof(send_data), 0);
             if (snd == -1) {
                 fprintf(stderr, "send error\n");
                 exit(0);
@@ -30,10 +30,11 @@ void send_from_stdin(int* s) {
 }
 
 
-void recieve_to_stdout(int n, int* s) {
+void* recieve_to_stdout(int* s) {
+    int r;
     char recieved_data[BUF];
     while (true) {
-        r = recv(s, recieved_data, sizeof(recieved_data), 0);
+        r = recv(*s, recieved_data, sizeof(recieved_data), 0);
         if (r > 0) {
             int wrt = write(1, recieved_data, sizeof(recieved_data));
             if (wrt == -1) {
@@ -49,6 +50,7 @@ int main(int argc, char* argv[]){
 
     // build socket
     int s;
+    int* s_pointer = &s;
     if (argc == 2) {
         int ss = socket(PF_INET, SOCK_STREAM, 0);
         struct sockaddr_in addr;
@@ -83,25 +85,25 @@ int main(int argc, char* argv[]){
     pthread_t send_thread, recieve_thread;
     int send_thread_id, recieve_thread_id;
 
-    send_thread_id = pthread_create(
+    int ret1 = send_thread_id = pthread_create(
             &send_thread,
             NULL,
-            send_from_stdin,
-            s
+            &send_from_stdin,
+            s_pointer
     );
 
-    recieve_thread_id = pthread_create(
+    int ret2 = recieve_thread_id = pthread_create(
             &recieve_thread,
             NULL,
-            recieve_from_stdin,
-            s
+            &recieve_to_stdout,
+            s_pointer
     );
 
     if (ret1 != 0) {
         err(EXIT_FAILURE, "can not create thread 1: %s", strerror(ret1));
     }
     if (ret2 != 0) {
-            err(EXIT_FAILURE, "can not create thread 2: %s", strerror(ret2) );
+        err(EXIT_FAILURE, "can not create thread 2: %s", strerror(ret2) );
     }
 
     fprintf(stderr, "datasend finished.\n");

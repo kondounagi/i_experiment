@@ -88,14 +88,14 @@ int main(int argc, char* argv[]){
     int ret1 = send_thread_id = pthread_create(
             &send_thread,
             NULL,
-            &send_from_stdin,
+            (void *)send_from_stdin,
             s_pointer
     );
 
     int ret2 = recieve_thread_id = pthread_create(
             &recieve_thread,
             NULL,
-            &recieve_to_stdout,
+            (void *)recieve_to_stdout,
             s_pointer
     );
 

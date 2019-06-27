@@ -33,7 +33,6 @@ int main(int argc, char* argv[]){
             fprintf(stderr, "connection failed!!\n");
             exit(0);
         }
-        fprintf(stderr, "accepted\n");
         close(ss);
     } else if (argc == 3) {
         s = socket(PF_INET, SOCK_STREAM, 0);
@@ -49,8 +48,8 @@ int main(int argc, char* argv[]){
         fprintf(stderr, "please check args\n");
     }
 
-    char send_data[1];
-    char recieved_data[1];
+    char send_data[BUF];
+    char recieved_data[BUF];
     int n, r;
     while (true) {
         // sending 1 bite
@@ -61,6 +60,7 @@ int main(int argc, char* argv[]){
                 fprintf(stderr, "send error\n");
                 exit(0);
             }
+            // fprintf(stderr, "sending successed.\n");
         }
         // recieving 1 bite
         r = recv(s, recieved_data, sizeof(recieved_data), 0);
@@ -70,6 +70,7 @@ int main(int argc, char* argv[]){
                 fprintf(stderr, "write error!\n");
                 exit(0);
             }
+            // fprintf(stderr, "recieving successed.\n");
         }
     }
     fprintf(stderr, "datasend finished.\n");

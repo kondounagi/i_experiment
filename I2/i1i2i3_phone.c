@@ -12,7 +12,7 @@
 #include <err.h>
 #include <string.h>
 #include <stdbool.h>
-#define BUF 256
+#define BUF 4096
 
 
 int main(int argc, char* argv[]){

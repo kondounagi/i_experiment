@@ -16,6 +16,7 @@ int main(int argc, char* argv[]){
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = inet_addr(argv[1]);
     addr.sin_port = htons(atoi(argv[2]));
+    socklen_t addrlen;
     //int ret = connect(s, (struct sockaddr *)&addr, sizeof(addr));
     //if(ret != 0){
     //    fprintf(stderr, "connection failed!!\n");
@@ -34,15 +35,18 @@ int main(int argc, char* argv[]){
     //}
     fprintf(stderr, "datasend finished.\n");
     shutdown(s, SHUT_WR);
-    char received_data[1];
+    char received_data[60];
+    addrlen = sizeof(addr);
     int r;
     fprintf(stderr, "start receiving\n");
-    while( r = recvfrom(s, received_data, sizeof(received_data), 0, (struct sockaddr * )&addr, sizeof(addr)) >0 ){
+    while( (r = recvfrom(s, received_data, sizeof(received_data), 0, (struct sockaddr * )&addr, &addrlen)) >0 ){
+	    fprintf(stderr, "hoge\n");
         int wrt = write(1, received_data, sizeof(received_data));
         if(wrt == -1){
             fprintf(stderr, "write error!\n");
             exit(0);
         }
+        fprintf(stderr, "receiving\n");
     }
     fprintf(stderr, "receiving finished.\n");
     return 0;

@@ -48,7 +48,11 @@ int main(int argc, char* argv[]){
 
     // send data
     FILE *fp;
-    char *cmdline = "./voice_synthesis.sh 'こんにちは'";
+    char input_text[128];
+    gets(input_text);
+    char shellcmd[] = "./voice_synthesis.sh ";
+    char s[N] = {'\0'};
+    sprintf(
     if ((fp = popen(cmdline, "r")) == NULL) {
         err(EXIT_FAILURE, "%s", cmdline);
     }

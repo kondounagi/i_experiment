@@ -56,7 +56,8 @@ int build_client_socket(char ip[], char port[]) {
     return s;
 }
 
-void read_data_thread(char* send_data, int s){
+void read_data_thread( int s){
+    char send_data[BUF];
     int n = read(0, send_data, sizeof(send_data));
     if (n > 0) {
         int snd = send(s, send_data, sizeof(send_data), 0);
@@ -68,28 +69,26 @@ void read_data_thread(char* send_data, int s){
     }
 }
 
-void recieve_data_thread(char* recieved_data, int s){
-        int r = recv(s, recieved_data, sizeof(recieved_data), 0);
-        if (r > 0) {
-            int wrt = write(1, recieved_data, sizeof(recieved_data));
-            if(wrt == -1){
-                fprintf(stderr, "write error!\n");
-                exit(0);
-            }
-            // fprintf(stderr, "recieving successed.\n");
+void recieve_data_thread( int s){
+    char recieved_data[BUF];
+    int r = recv(s, recieved_data, sizeof(recieved_data), 0);
+    if (r > 0) {
+        int wrt = write(1, recieved_data, sizeof(recieved_data));
+        if(wrt == -1){
+            fprintf(stderr, "write error!\n");
+            exit(0);
         }
+            // fprintf(stderr, "recieving successed.\n");
+    }
 }
 
 int main(int argc, char* argv[]){
     // build socket
     int s;
-    int type;//0: server, 1: client
     if (argc == 2) {
-        type = 0;
         char *port  = argv[1];
         s = build_server_socket(port);
     } else if (argc == 3) {
-        type = 1;
         char *ip = argv[1];
         char *port = argv[2];
         s = build_client_socket(ip, port);
@@ -97,13 +96,37 @@ int main(int argc, char* argv[]){
         fprintf(stderr, "please check args\n");
     }
 
-    char send_data[BUF];
-    char recieved_data[BUF];
     //int n, r;
     while (true) {
         // sending 1 bite
        // n = read(0, send_data, sizeof(send_data));
-        read_data_thread(send_data, s);
+
+        pthread_t sendthread, recievethread;
+        int ret1, ret2;
+
+        ret1 = pthread_create(&sendthread, NULL, (void *)read_data_thread, &s);
+        ret2 = pthread_create(&recievethread, NULL, (void *)recieve_data_thread, &s);
+
+        if(ret1 !=0){
+            fprintf(stderr, "failed to create sendthread\n");
+            exit(0);
+        }
+        if(ret2 !=0){
+            fprintf(stderr, "failed to create recievethread\n");
+            exit(0);
+        }
+
+        ret1 = pthread_join(sendthread,NULL);
+        ret2 = pthread_join(recievethread,NULL);
+        if(ret1 !=0){
+            fprintf(stderr, "failed to join sendthread\n");
+            exit(0);
+        }
+        if(ret2 !=0){
+            fprintf(stderr, "failed to join recievethread\n");
+            exit(0);
+        }
+        ///read_data_thread(send_data, ps);
         // if (n > 0) {
         //     int snd = send(s, send_data, sizeof(send_data), 0);
         //     if(snd == -1) {
@@ -112,7 +135,7 @@ int main(int argc, char* argv[]){
         //     }
         //     // fprintf(stderr, "sending successed.\n");
         // }
-        recieve_data_thread(recieved_data, s);
+        ///recieve_data_thread(recieved_data, ps);
         // recieving 1 bite
         // r = recv(s, recieved_data, sizeof(recieved_data), 0);
         // if (r > 0) {

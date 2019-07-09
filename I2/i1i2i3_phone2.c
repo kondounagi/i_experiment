@@ -33,7 +33,7 @@ int build_server_socket(char port[]){
     int s = accept(ss, (struct sockaddr *)&client_addr, &len);
 
     if (s < 0) {
-        fprintf(stderr, "connection failed!!\n");
+        fprintf(stderr, "server connection failed!!\n");
         exit(0);
     }
     close(ss);
@@ -51,7 +51,7 @@ int build_client_socket(char ip[], char port[]) {
 
     int ret = connect(s, (struct sockaddr *)&addr, sizeof(addr));
     if (ret != 0) {
-        fprintf(stderr, "connection failed !!!\n");
+        fprintf(stderr, "client connection failed !!!\n");
     }
     return s;
 }
@@ -59,17 +59,19 @@ int build_client_socket(char ip[], char port[]) {
 int main(int argc, char* argv[]){
     // build socket
     int s;
+    int type;//0: server, 1: client
     if (argc == 2) {
-        char port[] = argv[1];
+        type = 0;
+        char *port  = argv[1];
         s = build_server_socket(port);
     } else if (argc == 3) {
-        char ip[] = argv[1];
-        char port[] = argv[2];
+        type = 1;
+        char *ip = argv[1];
+        char *port = argv[2];
         s = build_client_socket(ip, port);
     } else {
         fprintf(stderr, "please check args\n");
     }
-    fprintf(stderr
 
     char send_data[BUF];
     char recieved_data[BUF];

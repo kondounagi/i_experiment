@@ -47,23 +47,27 @@ int main(int argc, char* argv[]){
     close(ss);
 
     // send data
-    FILE *fp;
-    char input_text[128];
-    gets(input_text);
-    char shellcmd[] = "./voice_synthesis.sh ";
-    char s[N] = {'\0'};
-    sprintf(
-    if ((fp = popen(cmdline, "r")) == NULL) {
-        err(EXIT_FAILURE, "%s", cmdline);
-    }
 
-   char send_data[1];
-   int n;
-   while ((n = fread(send_data, sizeof(char), 1, fp)) != 0) {
-       int snd = send(s, send_data, sizeof(send_data), 0);
-       if(snd == -1) {
-           fprintf(stderr, "send error\n");
-           exit(0);
+    while (1) {
+        char input_text[128];
+        scanf("%127s", input_text);
+
+        char shellcmd[] = "./voice_synthesis.sh";
+        char cmdline[256];
+        sprintf(cmdline, "%s %s", shellcmd, input_text);
+        FILE *fp;
+        if ((fp = popen(cmdline, "r")) == NULL) {
+            err(EXIT_FAILURE, "%s", cmdline);
+        }
+
+       char send_data[1];
+       int n;
+       while ((n = fread(send_data, sizeof(char), 1, fp)) != 0) {
+           int snd = send(s, send_data, sizeof(send_data), 0);
+           if(snd == -1) {
+               fprintf(stderr, "send error\n");
+               exit(0);
+           }
        }
    }
    fprintf(stderr, "datasend finished.\n");

@@ -15,6 +15,11 @@
 #include <pthread.h>
 #define BUF 4096
 
+struct communicate_set{
+    char data[BUF];
+    int socket;
+};
+
 int build_server_socket(char port[]){
     int ss = socket(PF_INET, SOCK_STREAM, 0);
 
@@ -56,11 +61,10 @@ int build_client_socket(char ip[], char port[]) {
     return s;
 }
 
-void read_data_thread( int s){
-    char send_data[BUF];
-    int n = read(0, send_data, sizeof(send_data));
+void read_data_thread(struct communicate_set *set){
+    int n = read(0, set->data, sizeof(set->data));
     if (n > 0) {
-        int snd = send(s, send_data, sizeof(send_data), 0);
+        int snd = send(set->socket, set->data, sizeof(set->data), 0);
         if(snd == -1) {
             fprintf(stderr, "send error\n");
             exit(0);
@@ -69,11 +73,10 @@ void read_data_thread( int s){
     }
 }
 
-void recieve_data_thread( int s){
-    char recieved_data[BUF];
-    int r = recv(s, recieved_data, sizeof(recieved_data), 0);
+void recieve_data_thread(struct communicate_set *set){
+    int r = recv(set->socket, set->data, sizeof(set->data), 0);
     if (r > 0) {
-        int wrt = write(1, recieved_data, sizeof(recieved_data));
+        int wrt = write(1, set->data, sizeof(set->data));
         if(wrt == -1){
             fprintf(stderr, "write error!\n");
             exit(0);
@@ -101,11 +104,21 @@ int main(int argc, char* argv[]){
         // sending 1 bite
        // n = read(0, send_data, sizeof(send_data));
 
+
         pthread_t sendthread, recievethread;
         int ret1, ret2;
 
-        ret1 = pthread_create(&sendthread, NULL, (void *)read_data_thread, &s);
-        ret2 = pthread_create(&recievethread, NULL, (void *)recieve_data_thread, &s);
+        char send_data[BUF];
+        char recieve_data[BUF];
+
+        struct communicate_set send_set;
+        send_set.socket = s; 
+
+        struct communicate_set recieve_set;
+        recieve_set.socket = s;
+
+        ret1 = pthread_create(&sendthread, NULL, (void *)read_data_thread, &send_set);
+        ret2 = pthread_create(&recievethread, NULL, (void *)recieve_data_thread, &recieve_set);
 
         if(ret1 !=0){
             fprintf(stderr, "failed to create sendthread\n");

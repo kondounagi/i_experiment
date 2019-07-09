@@ -56,6 +56,30 @@ int build_client_socket(char ip[], char port[]) {
     return s;
 }
 
+void read_data_thread(char* send_data, int s){
+    int n = read(0, send_data, sizeof(send_data));
+    if (n > 0) {
+        int snd = send(s, send_data, sizeof(send_data), 0);
+        if(snd == -1) {
+            fprintf(stderr, "send error\n");
+            exit(0);
+        }
+            // fprintf(stderr, "sending successed.\n");
+    }
+}
+
+void recieve_data_thread(char* recieved_data, int s){
+        int r = recv(s, recieved_data, sizeof(recieved_data), 0);
+        if (r > 0) {
+            int wrt = write(1, recieved_data, sizeof(recieved_data));
+            if(wrt == -1){
+                fprintf(stderr, "write error!\n");
+                exit(0);
+            }
+            // fprintf(stderr, "recieving successed.\n");
+        }
+}
+
 int main(int argc, char* argv[]){
     // build socket
     int s;
@@ -75,28 +99,30 @@ int main(int argc, char* argv[]){
 
     char send_data[BUF];
     char recieved_data[BUF];
-    int n, r;
+    //int n, r;
     while (true) {
         // sending 1 bite
-        n = read(0, send_data, sizeof(send_data));
-        if (n > 0) {
-            int snd = send(s, send_data, sizeof(send_data), 0);
-            if(snd == -1) {
-                fprintf(stderr, "send error\n");
-                exit(0);
-            }
-            // fprintf(stderr, "sending successed.\n");
-        }
+       // n = read(0, send_data, sizeof(send_data));
+        read_data_thread(send_data, s);
+        // if (n > 0) {
+        //     int snd = send(s, send_data, sizeof(send_data), 0);
+        //     if(snd == -1) {
+        //         fprintf(stderr, "send error\n");
+        //         exit(0);
+        //     }
+        //     // fprintf(stderr, "sending successed.\n");
+        // }
+        recieve_data_thread(recieved_data, s);
         // recieving 1 bite
-        r = recv(s, recieved_data, sizeof(recieved_data), 0);
-        if (r > 0) {
-            int wrt = write(1, recieved_data, sizeof(recieved_data));
-            if(wrt == -1){
-                fprintf(stderr, "write error!\n");
-                exit(0);
-            }
-            // fprintf(stderr, "recieving successed.\n");
-        }
+        // r = recv(s, recieved_data, sizeof(recieved_data), 0);
+        // if (r > 0) {
+        //     int wrt = write(1, recieved_data, sizeof(recieved_data));
+        //     if(wrt == -1){
+        //         fprintf(stderr, "write error!\n");
+        //         exit(0);
+        //     }
+        //     // fprintf(stderr, "recieving successed.\n");
+        // }
     }
     fprintf(stderr, "datasend finished.\n");
     close(s);

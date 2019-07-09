@@ -62,26 +62,30 @@ int build_client_socket(char ip[], char port[]) {
 }
 
 void read_data_thread(struct communicate_set *set){
-    int n = read(0, set->data, sizeof(set->data));
-    if (n > 0) {
-        int snd = send(set->socket, set->data, sizeof(set->data), 0);
-        if(snd == -1) {
-            fprintf(stderr, "send error\n");
-            exit(0);
+    while(true){
+        int n = read(0, set->data, sizeof(set->data));
+        if (n > 0) {
+            int snd = send(set->socket, set->data, sizeof(set->data), 0);
+            if(snd == -1) {
+                fprintf(stderr, "send error\n");
+                exit(0);
+            }
+                // fprintf(stderr, "sending successed.\n");
         }
-            // fprintf(stderr, "sending successed.\n");
     }
 }
 
 void recieve_data_thread(struct communicate_set *set){
-    int r = recv(set->socket, set->data, sizeof(set->data), 0);
-    if (r > 0) {
-        int wrt = write(1, set->data, sizeof(set->data));
-        if(wrt == -1){
-            fprintf(stderr, "write error!\n");
-            exit(0);
+    while(true){
+        int r = recv(set->socket, set->data, sizeof(set->data), 0);
+        if (r > 0) {
+            int wrt = write(1, set->data, sizeof(set->data));
+            if(wrt == -1){
+                fprintf(stderr, "write error!\n");
+                exit(0);
+            }
+                // fprintf(stderr, "recieving successed.\n");
         }
-            // fprintf(stderr, "recieving successed.\n");
     }
 }
 
@@ -100,7 +104,6 @@ int main(int argc, char* argv[]){
     }
 
     //int n, r;
-    while (true) {
         // sending 1 bite
        // n = read(0, send_data, sizeof(send_data));
 
@@ -108,11 +111,9 @@ int main(int argc, char* argv[]){
         pthread_t sendthread, recievethread;
         int ret1, ret2;
 
-        char send_data[BUF];
-        char recieve_data[BUF];
-
         struct communicate_set send_set;
-        send_set.socket = s; 
+        send_set.socket = s;
+        
 
         struct communicate_set recieve_set;
         recieve_set.socket = s;
@@ -161,7 +162,7 @@ int main(int argc, char* argv[]){
         //     }
         //     // fprintf(stderr, "recieving successed.\n");
         // }
-    }
+    
     fprintf(stderr, "datasend finished.\n");
     close(s);
     return 0;

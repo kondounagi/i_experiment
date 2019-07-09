@@ -64,8 +64,18 @@ int main(int argc, char* argv[]){
        int n;
        while ((n = fread(send_data, sizeof(char), 1, fp)) != 0) {
            int snd = send(s, send_data, sizeof(send_data), 0);
-           if(snd == -1) {
+           if (snd == -1) {
                fprintf(stderr, "send error\n");
+               exit(0);
+           }
+       }
+       char received_data[1];
+       int r;
+       fprintf(stderr, "start receiving\n");
+       while( r = recv(s, received_data, sizeof(received_data), 0) >0 ){
+           int wrt = write(1, received_data, sizeof(received_data));
+           if(wrt == -1){
+               fprintf(stderr, "write error!\n");
                exit(0);
            }
        }
@@ -73,16 +83,6 @@ int main(int argc, char* argv[]){
    fprintf(stderr, "datasend finished.\n");
    close(s);
     /*
-    char received_data[1];
-    int r;
-    fprintf(stderr, "start receiving\n");
-    while( r = recv(s, received_data, sizeof(received_data), 0) >0 ){
-        int wrt = write(1, received_data, sizeof(received_data));
-        if(wrt == -1){
-            fprintf(stderr, "write error!\n");
-            exit(0);
-        }
-    }
     fprintf(stderr, "receiving finished.\n");
     */
     return 0;

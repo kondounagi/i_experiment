@@ -129,10 +129,10 @@ int main(int argc, char* argv[]){
             exit(0);
         }
 
-        ret1 = pthread_join(sendthread,NULL);
-        fprintf(stderr, "ret1(send) thread started \n");
-        ret2 = pthread_join(recievethread,NULL);
-        fprintf(stderr, "ret2(recv) thread started \n");
+        // ret1 = pthread_join(sendthread,NULL);
+        // fprintf(stderr, "ret1(send) thread started \n");
+        // ret2 = pthread_join(recievethread,NULL);
+        // fprintf(stderr, "ret2(recv) thread started \n");
         if(ret1 !=0){
             fprintf(stderr, "failed to join sendthread\n");
             exit(0);

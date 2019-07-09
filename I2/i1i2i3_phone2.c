@@ -66,6 +66,7 @@ void read_data_thread(struct communicate_set *set){
         int n = read(0, set->data, sizeof(set->data));
         if (n > 0) {
             int snd = send(set->socket, set->data, sizeof(set->data), 0);
+            fprintf(stderr, "sended\n");
             if(snd == -1) {
                 fprintf(stderr, "send error\n");
                 exit(0);
@@ -80,6 +81,7 @@ void recieve_data_thread(struct communicate_set *set){
         int r = recv(set->socket, set->data, sizeof(set->data), 0);
         if (r > 0) {
             int wrt = write(1, set->data, sizeof(set->data));
+            fprintf(stderr, "recieved\n");
             if(wrt == -1){
                 fprintf(stderr, "write error!\n");
                 exit(0);

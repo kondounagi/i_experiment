@@ -1,4 +1,3 @@
-//本課題8.1に対応する
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -18,6 +17,7 @@
 struct communicate_set{
     char data[BUF];
     int socket;
+    FILE* fp;
 };
 
 int build_server_socket(char port[]){
@@ -61,9 +61,9 @@ int build_client_socket(char ip[], char port[]) {
     return s;
 }
 
-void read_data_thread(struct communicate_set *set){
+void read_data_thread(struct communicate_set *set){//read and send
     while(true){
-        int n = read(0, set->data, sizeof(set->data));
+        int n = fread(set->data, sizeof(char), 1, set->fp);
         if (n > 0) {
             int snd = send(set->socket, set->data, sizeof(set->data), 0);
 
@@ -105,11 +105,18 @@ int main(int argc, char* argv[]){
         fprintf(stderr, "please check args\n");
     }
 
+    FILE *fp;
+    char *cmdline = "rec -t raw -b 16 -c 1 -e s -r 44100 -";
+    if ((fp = popen(cmdline, "r")) == NULL) {
+        err(EXIT_FAILURE, "%s", cmdline);
+    }
+
     pthread_t sendthread, recievethread;
     int ret1, ret2;
 
     struct communicate_set send_set;
     send_set.socket = s;
+    send_set.fp = fp;
         
 
     struct communicate_set recieve_set;
@@ -127,10 +134,10 @@ int main(int argc, char* argv[]){
         exit(0);
     }
 
-     ret1 = pthread_join(sendthread,NULL);
-     fprintf(stderr, "ret1(send) thread started \n");
-     ret2 = pthread_join(recievethread,NULL);
-     fprintf(stderr, "ret2(recv) thread started \n");
+    ret1 = pthread_join(sendthread,NULL);
+    fprintf(stderr, "ret1(send) thread started \n");
+    ret2 = pthread_join(recievethread,NULL);
+    fprintf(stderr, "ret2(recv) thread started \n");
     if(ret1 !=0){
         fprintf(stderr, "failed to join sendthread\n");
         exit(0);

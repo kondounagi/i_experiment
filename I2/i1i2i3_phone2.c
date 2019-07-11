@@ -63,7 +63,7 @@ int build_client_socket(char ip[], char port[]) {
 
 void read_data_thread(struct communicate_set *set){//read and send
     while(true){
-        int n = fread(set->data, sizeof(char), 1, set->fp);
+        int n = fread(set->data, sizeof(char), BUF, set->fp);
         if (n > 0) {
             int snd = send(set->socket, set->data, sizeof(set->data), 0);
 

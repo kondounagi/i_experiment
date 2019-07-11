@@ -53,11 +53,11 @@ int main(int argc, char* argv[]){
         scanf("%127s", input_text);
 
         char shellcmd[] = "./voice_synthesis.sh";
-        char cmdline[256];
-        sprintf(cmdline, "%s %s", shellcmd, input_text);
+        char joinedcmdline[256];
+        sprintf(joinedcmdline, "%s %s", shellcmd, input_text);
         FILE *fp;
-        if ((fp = popen(cmdline, "r")) == NULL) {
-            err(EXIT_FAILURE, "%s", cmdline);
+        if ((fp = popen(joinedcmdline, "r")) == NULL) {
+            err(EXIT_FAILURE, "%s", joinedcmdline);
         }
 
        char send_data[1];

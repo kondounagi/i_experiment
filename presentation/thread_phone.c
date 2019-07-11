@@ -37,6 +37,8 @@ int build_server_socket(char port[]){
 
     int s = accept(ss, (struct sockaddr *)&client_addr, &len);
 
+    fprintf(stderr, "started\n");
+
     if (s < 0) {
         fprintf(stderr, "server connection failed!!\n");
         exit(0);
@@ -58,37 +60,20 @@ int build_client_socket(char ip[], char port[]) {
     if (ret != 0) {
         fprintf(stderr, "client connection failed !!!\n");
     }
-    fprintf(stderr, "socket was built\n");
     return s;
 }
 
 void read_data_thread(struct communicate_set *set){//read and send
     while(true){
-        char input_text[128];
-        scanf("%127s", input_text);
-
-        char shellcmd[] = "./voice_synthesis.sh";
-        char joinedcmdline[256];
-        sprintf(joinedcmdline, "%s %s", shellcmd, input_text);
-
-        FILE *fp;
-        if ((fp = popen(joinedcmdline, "r")) == NULL) {
-            err(EXIT_FAILURE, "%s", joinedcmdline);
-        }
-
-        while (true) {
-            int n = fread(set->data, sizeof(char), BUF, fp);
-            if (n <= 0) {
-                break;
-            }
-
+        int n = fread(set->data, sizeof(char), BUF, set->fp);
+        if (n > 0) {
             int snd = send(set->socket, set->data, sizeof(set->data), 0);
-            fprintf(stderr, "data was sent\n");
 
             if(snd == -1) {
                 fprintf(stderr, "send error\n");
                 exit(0);
             }
+                // fprintf(stderr, "sending successed.\n");
         }
     }
 }
@@ -122,19 +107,18 @@ int main(int argc, char* argv[]){
         fprintf(stderr, "please check args\n");
     }
 
-    /*
     FILE *fp;
     char *cmdline = "rec -t raw -b 16 -c 1 -e s -r 44100 -";
     if ((fp = popen(cmdline, "r")) == NULL) {
         err(EXIT_FAILURE, "%s", cmdline);
     }
-    */
 
     pthread_t sendthread, recievethread;
     int ret1, ret2;
 
     struct communicate_set send_set;
     send_set.socket = s;
+    send_set.fp = fp;
         
     struct communicate_set recieve_set;
     recieve_set.socket = s;

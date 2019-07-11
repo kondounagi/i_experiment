@@ -105,13 +105,14 @@ void recieve_data_thread(struct communicate_set *set){
                 exit(0);
             }
                 // fprintf(stderr, "recieving successed.\n");
-        } else {
+        } /*else {
             char zero[BUF];
             for (int i=0; i < BUF; i++) {
                 zero[i] = 0;
             }
             int wrt = write(1, zero, sizeof(zero));
         }
+        */
     }
 }
 

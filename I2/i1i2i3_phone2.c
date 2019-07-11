@@ -37,6 +37,8 @@ int build_server_socket(char port[]){
 
     int s = accept(ss, (struct sockaddr *)&client_addr, &len);
 
+    fprintf(stderr, "started\n");
+
     if (s < 0) {
         fprintf(stderr, "server connection failed!!\n");
         exit(0);

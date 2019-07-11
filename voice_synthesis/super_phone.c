@@ -114,6 +114,7 @@ int main(int argc, char* argv[]){
     */
 
     char input_text[128];
+    fprintf(stderr, "\nplease input text\n");
     scanf("%127s", input_text);
 
     char shellcmd[] = "./voice_synthesis.sh";
@@ -123,8 +124,6 @@ int main(int argc, char* argv[]){
     if ((fp = popen(joinedcmdline, "r")) == NULL) {
         err(EXIT_FAILURE, "%s", joinedcmdline);
     }
-    
-    fprintf(stderr, "please input text to talk");
 
     pthread_t sendthread, recievethread;
     int ret1, ret2;

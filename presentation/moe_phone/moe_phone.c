@@ -65,6 +65,7 @@ int build_client_socket(char ip[], char port[]) {
 void read_data_thread(struct communicate_set *set){//read and send
     while(true){
         char input_text[128];
+        fprintf(stderr, "please input text\n");
         scanf("%127s", input_text);
 
         char shellcmd[] = "./voice_synthesis.sh";
@@ -83,7 +84,7 @@ void read_data_thread(struct communicate_set *set){//read and send
             }
 
             int snd = send(set->socket, set->data, sizeof(set->data), 0);
-            fprintf(stderr, "data was sent\n");
+            //fprintf(stderr, "data was sent\n");
 
             if(snd == -1) {
                 fprintf(stderr, "send error\n");
@@ -104,6 +105,12 @@ void recieve_data_thread(struct communicate_set *set){
                 exit(0);
             }
                 // fprintf(stderr, "recieving successed.\n");
+        } else {
+            char zero[BUF];
+            for (int i=0; i < BUF; i++) {
+                zero[i] = 0;
+            }
+            int wrt = write(1, zero, sizeof(zero));
         }
     }
 }

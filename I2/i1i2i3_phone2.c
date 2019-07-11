@@ -118,9 +118,13 @@ int main(int argc, char* argv[]){
     send_set.socket = s;
     send_set.fp = fp;
         
-
     struct communicate_set recieve_set;
     recieve_set.socket = s;
+
+    for (int i = 0; i < BUF; i++) {
+        send_set.data[i] = 0;
+        recieve_set.data[i] = 0;
+    }
 
     ret1 = pthread_create(&sendthread, NULL, (void *)read_data_thread, &send_set);
     ret2 = pthread_create(&recievethread, NULL, (void *)recieve_data_thread, &recieve_set);

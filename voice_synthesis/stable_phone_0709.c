@@ -125,7 +125,6 @@ int main(int argc, char* argv[]){
 
     struct communicate_set send_set;
     send_set.socket = s;
-        
 
     struct communicate_set recieve_set;
     recieve_set.socket = s;
